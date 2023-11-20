@@ -1,6 +1,7 @@
 --- Default configuration for typecheck.nvim
 local default_config = {
   debug = false,
+  monorepo = false,
 }
 --- Global configuration for entire plugin, easy to access from anywhere
 _TYPECHECK_GLOBAL_CONFIG = default_config
