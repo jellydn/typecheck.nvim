@@ -23,8 +23,8 @@ return {
   ft = { "typescript" },
   opts = {
     debug = true, -- Allow to write log to ~/.cache/nvim/typecheck.nvim.log
+    monorepo = false, -- Run tsc with --build flag for monorepo
   },
-  cmd = "Typecheck",
   keys = {
     {
       "<leader>ck",

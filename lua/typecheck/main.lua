@@ -3,10 +3,26 @@ local utils = require('typecheck.utils')
 local M = {}
 
 local is_running = false
+local is_monorepo = _TYPECHECK_GLOBAL_CONFIG.monorepo
 function M.setup()
+  -- Add new command for toggle monorepo mode
+  utils.create_cmd('ToggleMonorepoMode', function()
+    is_monorepo = not is_monorepo
+    if is_monorepo then
+      vim.notify('Typecheck monorepo mode enabled', vim.log.levels.INFO)
+    else
+      vim.notify('Typecheck monorepo mode disabled', vim.log.levels.INFO)
+    end
+  end, {})
+
   -- Add Typecheck command and send output to quickfix
   utils.create_cmd('Typecheck', function()
-    vim.notify('Typechecking', vim.log.levels.INFO)
+    if is_monorepo then
+      vim.notify('Typechecking in monorepo', vim.log.levels.INFO)
+    else
+      vim.notify('Typechecking', vim.log.levels.INFO)
+    end
+
     local tsc_path = utils.find_tsc_bin()
     if tsc_path == nil then
       vim.notify('tsc not found', vim.log.levels.ERROR)
@@ -15,17 +31,35 @@ function M.setup()
 
     local tsconfig_path = utils.find_tsconfig_nearest()
     if tsconfig_path == nil then
-      vim.notify('tsconfig.json not found', vim.log.levels.ERROR)
-      return
+      vim.notify('tsconfig.json not found', vim.log.levels.WARN)
     end
+
     if is_running then
       vim.notify('Typecheck already running', vim.log.levels.WARN)
       return
     end
 
     is_running = true
+    local cmd = { tsc_path, '--noEmit' }
 
-    local cmd = { tsc_path, '--noEmit', '--project', tsconfig_path }
+    if tsconfig_path ~= nil then
+      cmd = { tsc_path, '--noEmit', '--project', tsconfig_path }
+    else
+      -- Only run for current file
+      local current_file = vim.fn.expand('%:p')
+      cmd = { tsc_path, '--noEmit', current_file }
+    end
+
+    -- If monorepo mode is enabled, use tsc --build instead
+    if is_monorepo then
+      if tsconfig_path ~= nil then
+        local tsconfig_dir = vim.fn.fnamemodify(tsconfig_path, ':h')
+        vim.cmd('cd ' .. tsconfig_dir)
+      end
+      --build, -b  Build one or more projects and their dependencies, if out of date
+      cmd = { tsc_path, '--build' }
+    end
+
     local output = {}
     local stderr = {}
 
@@ -42,9 +76,23 @@ function M.setup()
       local total_errors = #output
 
       if not is_success then
-        vim.fn.setqflist({}, 'r', { title = 'Typecheck', items = output })
+        if total_errors > 0 then
+          vim.fn.setqflist({}, 'r', { title = 'Typecheck', items = output })
+          vim.notify('Typecheck complete with ' .. total_errors .. ' errors', vim.log.levels.ERROR)
+        else
+          -- Send a hint to quickfix about check logs file or run :ToggleMonorepoMode then try again
+          local log_file = string.format('%s/%s.log', vim.fn.stdpath('cache'), 'typecheck.nvim')
+          vim.fn.setqflist({}, 'r', {
+            title = 'Typecheck',
+            items = {
+              {
+                filename = log_file,
+                text = 'Typecheck failed, check typecheck.nvim.log for more details or run :ToggleMonorepoMode then try again.',
+              },
+            },
+          })
+        end
         vim.cmd('copen')
-        vim.notify('Typecheck complete with ' .. total_errors .. ' errors', vim.log.levels.ERROR)
       else
         vim.notify('Typecheck passed', vim.log.levels.INFO)
       end

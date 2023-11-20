@@ -118,6 +118,13 @@ util.find_tsc_bin = function()
     return yarn_tsc[1] .. '/tsc'
   end
 
+  -- check if pnpm is installed and has tsc
+  local pnpm_tsc = vim.fn.systemlist('pnpm bin')
+  if vim.v.shell_error == 0 and vim.fn.filereadable(pnpm_tsc[1] .. '/tsc') ~= 0 then
+    util.log_info('Found tsc at ' .. pnpm_tsc[1] .. '/tsc')
+    return pnpm_tsc[1] .. '/tsc'
+  end
+
   -- TODO: Detect bun if there is bun.lock and bun is istalled and has tsc
 
   -- TODO: Detect deno if there is deno.lock and deno is installed and has tsc
