@@ -1,0 +1,6 @@
+describe('Typecheck.nvim plugin', function()
+  it('should be able to load', function()
+    local typecheck = require('typecheck')
+    assert.truthy(typecheck)
+  end)
+end)
