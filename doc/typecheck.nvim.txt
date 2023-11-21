@@ -98,12 +98,11 @@ AUTHOR                                                 *typecheck.nvim-author*
 👤 **Huynh Duc Dung**
 
 - Website: https://productsway.com/
-- Twitter: @jellydn <https://twitter.com/jellydn>
-- Github: @jellydn <https://github.com/jellydn>
+- Twitter: Huynh Duc Dung <jellydn@example.com> <https://twitter.com/jellydn>
+- Github: Huynh Duc Dung <jellydn@example.com> <https://github.com/jellydn>
 
 
 SHOW YOUR SUPPORT                           *typecheck.nvim-show-your-support*
-
 If this guide has been helpful, please give it a ⭐️.
 
 <https://ko-fi.com/dunghd> <https://paypal.me/dunghd>
@@ -113,8 +112,8 @@ If this guide has been helpful, please give it a ⭐️.
 1. Links                                                *typecheck.nvim-links*
 
 1. *Demo*: https://i.gyazo.com/5009755ceb575afc78d7303983a2f7c0.gif
-2. *@jellydn*: 
-3. *@jellydn*: 
+2. *Huynh Duc Dung <jellydn@example.com>*: 
+3. *Huynh Duc Dung <jellydn@example.com>*: 
 4. *kofi*: https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white
 5. *paypal*: https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white
 6. *buymeacoffee*: https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black
