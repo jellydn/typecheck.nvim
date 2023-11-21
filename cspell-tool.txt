@@ -23,3 +23,5 @@ docstrings
 sweepai
 pygithub
 sandboxed
+findfile
+Deno
