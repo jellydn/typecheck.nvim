@@ -1,4 +1,4 @@
-*typecheck.nvim.txt*       For NVIM v0.8.0       Last change: 2023 November 20
+*typecheck.nvim.txt*       For NVIM v0.8.0       Last change: 2023 November 21
 
 ==============================================================================
 Table of Contents                           *typecheck.nvim-table-of-contents*
@@ -36,7 +36,7 @@ using lazy.nvim <https://github.com/folke/lazy.nvim>:
 >lua
     return {
       "jellydn/typecheck.nvim",
-      ft = { "typescript" },
+      ft = { "javascript", "javascriptreact", "json", "jsonc", "typescript", "typescriptreact" },
       opts = {
         debug = true, -- Allow to write log to ~/.cache/nvim/typecheck.nvim.log
         monorepo = false, -- Run tsc with --build flag for monorepo
