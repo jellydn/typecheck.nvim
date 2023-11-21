@@ -56,6 +56,19 @@ util.parse_tsc_output = function(data, type)
   return errors
 end
 
+--- Find if string contains substring
+---@param str_list string[]
+---@param keyword string
+---@return string|nil
+local function contain_string(str_list, keyword)
+  for _, str in ipairs(str_list) do
+    if str:find(keyword) then
+      return str
+    end
+  end
+  return nil
+end
+
 --- Find tsconfig.json nearest to current file
 ---@return string|nil
 util.find_tsconfig_nearest = function()
@@ -64,8 +77,12 @@ util.find_tsconfig_nearest = function()
   local root_dir = vim.fn.systemlist('git -C ' .. current_dir .. ' rev-parse --show-toplevel')[1]
 
   if vim.v.shell_error ~= 0 then
-    -- Git root not found
-    util.log_info('Git root not found')
+    -- Git root not found, check if there is tsconfig.json in current directory
+    local tsconfig = vim.fn.findfile('tsconfig.json', '.;')
+    if tsconfig ~= '' then
+      return tsconfig
+    end
+
     return nil
   end
 
@@ -98,36 +115,44 @@ end
 util.find_tsc_bin = function()
   local current_dir = vim.fn.expand('%:p:h')
   local root_dir = vim.fn.systemlist('git -C ' .. current_dir .. ' rev-parse --show-toplevel')[1]
+  util.log_info('Git root: ' .. root_dir)
 
   if vim.v.shell_error ~= 0 then
-    util.log_info('Git root not found')
-    return nil
+    -- Git root not found, file tsc binary in node_modules/.bin
+    local node_modules_tsc_binary = vim.fn.findfile('node_modules/.bin/tsc', '.;')
+    if node_modules_tsc_binary ~= '' then
+      return node_modules_tsc_binary
+    end
   end
 
   -- Check for tsc in node_modules/.bin
   local tsc_path = root_dir .. '/node_modules/.bin/tsc'
+  util.log_info('Check for tsc in ' .. tsc_path)
   if vim.fn.filereadable(tsc_path) ~= 0 then
     util.log_info('Found tsc at ' .. tsc_path)
     return tsc_path
   end
 
-  -- Check if yarn is installed and has tsc
-  local yarn_tsc = vim.fn.systemlist('yarn global bin')
-  if vim.v.shell_error == 0 and vim.fn.filereadable(yarn_tsc[1] .. '/tsc') ~= 0 then
-    util.log_info('Found tsc at ' .. yarn_tsc[1] .. '/tsc')
-    return yarn_tsc[1] .. '/tsc'
+  -- Check if yarn v1 is installed and has tsc
+  local yarn_v1_tsc = vim.fn.systemlist('yarn bin tsc')
+  util.log_info('Check for tsc with yarn v1: ' .. vim.inspect(yarn_v1_tsc))
+  local tsc = vim.v.shell_error == 0 and yarn_v1_tsc ~= nil and contain_string(yarn_v1_tsc, 'tsc')
+  if tsc then
+    util.log_info('[yarn] - Found tsc at ' .. tsc)
+    return tsc
   end
 
   -- check if pnpm is installed and has tsc
   local pnpm_tsc = vim.fn.systemlist('pnpm bin')
+  util.log_info('Check for tsc with pnpm: ' .. vim.inspect(pnpm_tsc))
   if vim.v.shell_error == 0 and vim.fn.filereadable(pnpm_tsc[1] .. '/tsc') ~= 0 then
-    util.log_info('Found tsc at ' .. pnpm_tsc[1] .. '/tsc')
+    util.log_info('[pnpm] - Found tsc at ' .. pnpm_tsc[1] .. '/tsc')
     return pnpm_tsc[1] .. '/tsc'
   end
 
-  -- TODO: Detect bun if there is bun.lock and bun is installed and has tsc
+  -- TODO: Detect Bun if there is bun.lock and Bun is installed and has tsc
 
-  -- TODO: Detect deno if there is deno.lock and deno is installed and has tsc
+  -- TODO: Detect Deno if there is deno.lock and Deno is installed and has tsc
 
   return nil
 end
