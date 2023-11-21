@@ -35,6 +35,12 @@ return {
 }
 ```
 
+### Demo
+
+Run `:Typecheck` to start type checking. The quickfix window will open if there are any errors or warnings.
+
+[![Demo](https://i.gyazo.com/5009755ceb575afc78d7303983a2f7c0.gif)](https://gyazo.com/5009755ceb575afc78d7303983a2f7c0)
+
 ## Roadmap
 
 `typecheck.nvim` is continuously evolving, and there are exciting plans for future enhancements. Here's what's on the horizon:
