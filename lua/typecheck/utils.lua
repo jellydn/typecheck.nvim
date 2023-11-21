@@ -125,7 +125,7 @@ util.find_tsc_bin = function()
     return pnpm_tsc[1] .. '/tsc'
   end
 
-  -- TODO: Detect bun if there is bun.lock and bun is istalled and has tsc
+  -- TODO: Detect bun if there is bun.lock and bun is installed and has tsc
 
   -- TODO: Detect deno if there is deno.lock and deno is installed and has tsc
 
