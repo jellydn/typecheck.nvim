@@ -20,7 +20,7 @@ Include `typecheck.nvim` in your plugin manager's configuration. For example, us
 ```lua
 return {
   "jellydn/typecheck.nvim",
-  ft = { "typescript" },
+  ft = { "javascript", "javascriptreact", "json", "jsonc", "typescript", "typescriptreact" },
   opts = {
     debug = true, -- Allow to write log to ~/.cache/nvim/typecheck.nvim.log
     monorepo = false, -- Run tsc with --build flag for monorepo
