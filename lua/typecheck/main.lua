@@ -55,9 +55,10 @@ function M.setup()
       if tsconfig_path ~= nil then
         local tsconfig_dir = vim.fn.fnamemodify(tsconfig_path, ':h')
         vim.cmd('cd ' .. tsconfig_dir)
+        utils.log_info('Changed directory to ' .. tsconfig_dir)
       end
       --build, -b  Build one or more projects and their dependencies, if out of date
-      cmd = { tsc_path, '--build' }
+      cmd = { tsc_path, '--build', '--verbose' }
     end
 
     local output = {}

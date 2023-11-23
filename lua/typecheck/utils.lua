@@ -82,8 +82,6 @@ util.find_tsconfig_nearest = function()
     if tsconfig ~= '' then
       return tsconfig
     end
-
-    return nil
   end
 
   while current_dir ~= root_dir do
