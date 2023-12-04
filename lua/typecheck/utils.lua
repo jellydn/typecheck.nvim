@@ -135,9 +135,12 @@ util.find_tsc_bin = function()
   local yarn_v1_tsc = vim.fn.systemlist('yarn bin tsc')
   util.log_info('Check for tsc with yarn v1: ' .. vim.inspect(yarn_v1_tsc))
   local tsc = vim.v.shell_error == 0 and yarn_v1_tsc ~= nil and contain_string(yarn_v1_tsc, 'tsc')
-  if tsc then
+  -- Check tsc is executable
+  if tsc and vim.fn.executable(tsc) == 1 then
     util.log_info('[yarn] - Found tsc at ' .. tsc)
     return tsc
+  else
+    util.log_error('[yarn] - tsc not found')
   end
 
   -- check if pnpm is installed and has tsc
@@ -145,7 +148,15 @@ util.find_tsc_bin = function()
   util.log_info('Check for tsc with pnpm: ' .. vim.inspect(pnpm_tsc))
   if vim.v.shell_error == 0 and vim.fn.filereadable(pnpm_tsc[1] .. '/tsc') ~= 0 then
     util.log_info('[pnpm] - Found tsc at ' .. pnpm_tsc[1] .. '/tsc')
-    return pnpm_tsc[1] .. '/tsc'
+    local tsc = pnpm_tsc[1] .. '/tsc'
+    if tsc and vim.fn.executable(tsc) == 1 then
+      util.log_info('[pnpm] - Found tsc at ' .. tsc)
+      return tsc
+    else
+      util.log_error('[pnpm] - tsc not found')
+    end
+  else
+    util.log_error('[pnpm] - tsc not found')
   end
 
   -- TODO: Detect Bun if there is bun.lock and Bun is installed and has tsc

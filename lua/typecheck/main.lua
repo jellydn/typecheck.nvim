@@ -127,6 +127,7 @@ function M.setup()
     vim.loop.read_start(stdout, function(err, data)
       assert(not err, err)
       if data then
+        utils.log_info('Read data from stdout')
         local parsed_errors = utils.parse_tsc_output(data, 'stdout')
         utils.log_info('Parsed errors: ' .. vim.inspect(parsed_errors))
         for _, error_line in ipairs(parsed_errors) do
@@ -138,6 +139,7 @@ function M.setup()
     vim.loop.read_start(stderr_pipe, function(err, data)
       assert(not err, err)
       if data then
+        utils.log_info('Read data from stderr_pipe')
         local parsed_errors = utils.parse_tsc_output(data, 'stderr_pipe')
         utils.log_info('Parsed errors: ' .. vim.inspect(parsed_errors))
         for _, error_line in ipairs(parsed_errors) do
@@ -148,6 +150,7 @@ function M.setup()
 
     if not handle then
       vim.notify('Failed to start typecheck', vim.log.levels.ERROR)
+      is_running = false
     end
   end, {})
 end
