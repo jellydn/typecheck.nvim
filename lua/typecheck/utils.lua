@@ -35,7 +35,7 @@ end
 
 --- Parse tsc output
 ---@param data string
----@type string
+---@param type string
 ---@return table
 util.parse_tsc_output = function(data, type)
   util.log_info('Parse tsc error message from ' .. type .. ':' .. data)
@@ -115,20 +115,15 @@ util.find_tsc_bin = function()
   local root_dir = vim.fn.systemlist('git -C ' .. current_dir .. ' rev-parse --show-toplevel')[1]
   util.log_info('Git root: ' .. root_dir)
 
-  if vim.v.shell_error ~= 0 then
-    -- Git root not found, file tsc binary in node_modules/.bin
-    local node_modules_tsc_binary = vim.fn.findfile('node_modules/.bin/tsc', '.;')
-    if node_modules_tsc_binary ~= '' then
-      return node_modules_tsc_binary
+  -- Check for tsc from current directory up to git root
+  local results = vim.fs.find({
+    '/node_modules/.bin/tsc',
+  }, { upward = true, path = current_dir, stop = root_dir, limit = math.huge })
+  for _, path in ipairs(results) do
+    util.log_info('Found tsc at ' .. path)
+    if vim.fn.executable(path) == 1 then
+      return path
     end
-  end
-
-  -- Check for tsc in node_modules/.bin
-  local tsc_path = root_dir .. '/node_modules/.bin/tsc'
-  util.log_info('Check for tsc in ' .. tsc_path)
-  if vim.fn.filereadable(tsc_path) ~= 0 then
-    util.log_info('Found tsc at ' .. tsc_path)
-    return tsc_path
   end
 
   -- Check if yarn v1 is installed and has tsc
