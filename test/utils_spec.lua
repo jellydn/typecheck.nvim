@@ -36,4 +36,21 @@ describe('Typecheck.nvim - utils', function()
     local parsed_output = utils.parse_tsc_output(tsc_output, 'stdout')
     assert.are.same(expected_output, parsed_output)
   end)
+
+  it('should correctly parse complex tsc error output', function()
+    local tsc_output =
+      [[server.mts:34:26 - error TS2554: Expected 1 arguments, but got 0. >>>> 34   const contract = await getActiveSmartContract();]]
+
+    local expected_output = {
+      {
+        filename = 'server.mts',
+        lnum = 34,
+        col = 26,
+        text = 'error TS2554: Expected 1 arguments, but got 0. >>>> 34   const contract = await getActiveSmartContract();',
+      },
+    }
+
+    local parsed_output = utils.parse_tsc_output(tsc_output, 'stdout')
+    assert.are.same(expected_output, parsed_output)
+  end)
 end)

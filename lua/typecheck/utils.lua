@@ -33,6 +33,16 @@ util.create_cmd = function(cmd, func, opt)
   vim.api.nvim_create_user_command(cmd, func, opt)
 end
 
+-- Function to remove ANSI color codes
+local function remove_ansi_codes(str)
+  return str:gsub('\027%[[0-9;]*m', '')
+end
+
+-- Function to trim whitespace from a string
+local function trim(s)
+  return s:match('^%s*(.-)%s*$')
+end
+
 --- Parse tsc output
 ---@param data string
 ---@param type string
@@ -40,17 +50,45 @@ end
 util.parse_tsc_output = function(data, type)
   util.log_info('Parse tsc error message from ' .. type .. ':' .. data)
   local errors = {}
+  local currentError = nil
+
   for line in data:gmatch('[^\r\n]+') do
+    line = remove_ansi_codes(line)
+    line = trim(line)
+    -- Match for single-line error (e.g., TS1005)
     local file, lineno, colno, errorCode, errorMsg =
       line:match('^(.-)%((%d+),(%d+)%)%: error (TS%d+): (.+)')
-    if file and lineno and colno and errorCode and errorMsg then
-      table.insert(errors, {
+
+    -- Match for first line of multi-line error (e.g., TS2554)
+    if not file then
+      file, lineno, colno, errorCode = line:match('^(.-)%:(%d+)%:(%d+)%s*%- error (TS%d+):')
+      -- Get error message after error code
+      errorMsg = line:match('error TS%d+: (.+)')
+    end
+
+    if file then
+      if currentError then
+        -- End of the previous error, start of a new one
+        table.insert(errors, currentError)
+      end
+      -- Start of a new error
+      currentError = {
         filename = file,
         lnum = tonumber(lineno),
         col = tonumber(colno),
-        text = 'error ' .. errorCode .. ': ' .. errorMsg,
-      })
+        text = errorCode and ('error ' .. errorCode .. ': ' .. (errorMsg or '')) or '',
+      }
+    elseif currentError then
+      -- Continuing a multi-line error message
+      local separator = ' >>> '
+      currentError.text = currentError.text .. separator .. line
     end
+  end
+
+  if currentError then
+    -- TODO: Simplify the error message for multi-line error
+    -- Add the last error
+    table.insert(errors, currentError)
   end
 
   return errors
