@@ -1,4 +1,4 @@
-*typecheck.nvim.txt*       For NVIM v0.8.0       Last change: 2023 December 04
+*typecheck.nvim.txt*       For NVIM v0.8.0       Last change: 2023 December 05
 
 ==============================================================================
 Table of Contents                           *typecheck.nvim-table-of-contents*
@@ -25,7 +25,6 @@ FEATURES                                             *typecheck.nvim-features*
 
 - Asynchronous type checking: Run TypeScript compiler (`tsc`) checks without blocking the Neovim UI.
 - Integration with quickfix window: View and navigate TypeScript errors and warnings directly within Neovim.
-- Customizable log level: Toggle debug logging on or off.
 
 
 INSTALLATION                                     *typecheck.nvim-installation*
