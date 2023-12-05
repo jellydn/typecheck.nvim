@@ -11,7 +11,6 @@
 
 - Asynchronous type checking: Run TypeScript compiler (`tsc`) checks without blocking the Neovim UI.
 - Integration with quickfix window: View and navigate TypeScript errors and warnings directly within Neovim.
-- Customizable log level: Toggle debug logging on or off.
 
 ## Installation
 

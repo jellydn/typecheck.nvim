@@ -113,12 +113,14 @@ end
 util.find_tsc_bin = function()
   local current_dir = vim.fn.expand('%:p:h')
   local root_dir = vim.fn.systemlist('git -C ' .. current_dir .. ' rev-parse --show-toplevel')[1]
-  util.log_info('Git root: ' .. root_dir)
-
   -- Check for tsc from current directory up to git root
+  --
+  util.log_info('Check for tsc from current directory up to git root')
+  util.log_info('Current directory: ' .. current_dir)
+  util.log_info('Git root: ' .. root_dir)
   local results = vim.fs.find({
     '/node_modules/.bin/tsc',
-  }, { upward = true, path = current_dir, stop = root_dir, limit = math.huge })
+  }, { upward = true, path = current_dir, limit = math.huge })
   for _, path in ipairs(results) do
     util.log_info('Found tsc at ' .. path)
     if vim.fn.executable(path) == 1 then
@@ -141,12 +143,16 @@ util.find_tsc_bin = function()
   -- check if pnpm is installed and has tsc
   local pnpm_tsc = vim.fn.systemlist('pnpm bin')
   util.log_info('Check for tsc with pnpm: ' .. vim.inspect(pnpm_tsc))
-  if vim.v.shell_error == 0 and vim.fn.filereadable(pnpm_tsc[1] .. '/tsc') ~= 0 then
+  if
+    vim.v.shell_error == 0
+    and pnpm_tsc ~= nil
+    and vim.fn.filereadable(pnpm_tsc[1] .. '/tsc') ~= 0
+  then
     util.log_info('[pnpm] - Found tsc at ' .. pnpm_tsc[1] .. '/tsc')
-    local tsc = pnpm_tsc[1] .. '/tsc'
-    if tsc and vim.fn.executable(tsc) == 1 then
-      util.log_info('[pnpm] - Found tsc at ' .. tsc)
-      return tsc
+    local tsc_bin = pnpm_tsc[1] .. '/tsc'
+    if tsc_bin and vim.fn.executable(tsc_bin) == 1 then
+      util.log_info('[pnpm] - Found tsc at ' .. tsc_bin)
+      return tsc_bin
     else
       util.log_error('[pnpm] - tsc not found')
     end
@@ -159,6 +165,24 @@ util.find_tsc_bin = function()
   -- TODO: Detect Deno if there is deno.lock and Deno is installed and has tsc
 
   return nil
+end
+
+--- Clear quickfix if the test is successful after running
+util.clear_quickfix = function()
+  -- Only clear typecheck list in quickfix if there is no error
+  vim.fn.setqflist({}, ' ', {
+    title = 'typecheck',
+    items = {},
+  })
+  vim.cmd('cclose')
+end
+
+util.send_to_quickfix = function(items)
+  vim.fn.setqflist({}, ' ', {
+    title = 'typecheck',
+    items = items,
+  })
+  vim.cmd('copen')
 end
 
 return util
