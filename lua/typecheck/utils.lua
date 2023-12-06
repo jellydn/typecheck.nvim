@@ -1,4 +1,5 @@
 local log = require('typecheck.vlog')
+local typescript_errors = require('typecheck.known_errors')
 
 local util = {}
 
@@ -51,6 +52,7 @@ util.parse_tsc_output = function(data, type)
   util.log_info('Parse tsc error message from ' .. type .. ':' .. data)
   local errors = {}
   local currentError = nil
+  local separator = ' >>>> '
 
   for line in data:gmatch('[^\r\n]+') do
     line = remove_ansi_codes(line)
@@ -74,15 +76,37 @@ util.parse_tsc_output = function(data, type)
       if currentError then
         table.insert(errors, currentError)
       end
-      -- Start of a new error
-      currentError = {
-        filename = file,
-        lnum = tonumber(lineno),
-        col = tonumber(colno),
-        text = errorCode and ('error ' .. errorCode .. ': ' .. (errorMsg or '')) or '',
-      }
+      util.log_info(
+        'Found error: '
+          .. file
+          .. ':'
+          .. lineno
+          .. ':'
+          .. colno
+          .. ' - '
+          .. errorCode
+          .. ' - '
+          .. errorMsg
+      )
+
+      if typescript_errors.known_errors[errorCode] then
+        util.log_info('Error is known, simply skip it')
+        table.insert(errors, {
+          filename = file,
+          lnum = tonumber(lineno),
+          col = tonumber(colno),
+          text = typescript_errors.known_errors[errorCode],
+        })
+      else
+        -- Start of a new error
+        currentError = {
+          filename = file,
+          lnum = tonumber(lineno),
+          col = tonumber(colno),
+          text = errorCode and ('error ' .. errorCode .. ': ' .. (errorMsg or '')) or '',
+        }
+      end
     elseif currentError then
-      local separator = ' >>> '
       currentError.text = currentError.text .. separator .. trim(line)
     end
   end
