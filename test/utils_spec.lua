@@ -7,13 +7,13 @@ describe('Typecheck.nvim - utils', function()
   end)
 
   it('should correctly parse tsc error output for TS1005', function()
-    local tsc_output = "src/index.ts(5,21): error TS1005: ')' expected."
+    local tsc_output = "src/index.ts(5,21): error TS1005: ')' expected. >>>> error TS1005: ')' expected."
     local expected_output = {
       {
         filename = 'src/index.ts',
         lnum = 5,
         col = 21,
-        text = "error TS1005: ')' expected.",
+        text = "error TS1005: ')' expected. >>>> error TS1005: ')' expected.",
       },
     }
 
@@ -29,7 +29,7 @@ describe('Typecheck.nvim - utils', function()
         filename = 'src/index.ts',
         lnum = 5,
         col = 19,
-        text = "error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.",
+        text = "error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'. >>>> error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.",
       },
     }
 
