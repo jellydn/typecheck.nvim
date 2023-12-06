@@ -105,6 +105,7 @@ util.parse_tsc_output = function(data, type)
     currentError.text = util.simplify_error_message(currentError.text)
     table.insert(errors, currentError)
   end
+  end
 
   return errors
 end
