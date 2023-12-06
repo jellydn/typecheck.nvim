@@ -239,6 +239,24 @@ util.find_tsc_bin = function()
   return nil
 end
 
+--- Show error list in quickfix window or trouble if available
+---@param mode 'open'|'close'
+local function toggle_error_list(mode)
+  if vim.fn.exists(':TroubleToggle') ~= 0 then
+    if mode == 'open' then
+      vim.cmd('Trouble quickfix')
+    else
+      vim.cmd('TroubleClose')
+    end
+  else
+    if mode == 'open' then
+      vim.cmd('copen')
+    else
+      vim.cmd('cclose')
+    end
+  end
+end
+
 --- Clear quickfix if the test is successful after running
 util.clear_quickfix = function()
   -- Only clear typecheck list in quickfix if there is no error
@@ -246,7 +264,7 @@ util.clear_quickfix = function()
     title = 'typecheck',
     items = {},
   })
-  vim.cmd('cclose')
+  toggle_error_list('close')
 end
 
 util.send_to_quickfix = function(items)
@@ -254,7 +272,7 @@ util.send_to_quickfix = function(items)
     title = 'typecheck',
     items = items,
   })
-  vim.cmd('copen')
+  toggle_error_list('open')
 end
 
 return util
