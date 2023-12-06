@@ -28,7 +28,6 @@ local function run_typecheck(cmd)
       vim.notify('Typecheck passed', vim.log.levels.INFO)
     end
 
-    vim.notify('Typecheck complete', vim.log.levels.INFO)
     is_running = false
 
     if handle then

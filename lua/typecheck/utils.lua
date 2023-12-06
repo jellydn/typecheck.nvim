@@ -247,9 +247,9 @@ end
 local function toggle_error_list(mode)
   if vim.fn.exists(':TroubleToggle') ~= 0 then
     if mode == 'open' then
-      vim.cmd('Trouble quickfix')
+      require('trouble').open('quickfix')
     else
-      vim.cmd('TroubleClose')
+      require('trouble').close()
     end
   else
     if mode == 'open' then
