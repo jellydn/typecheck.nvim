@@ -114,19 +114,13 @@ end
 ---@return string
 util.simplify_error_message = function(error_message)
   local parts = {}
-  for part in string.gmatch(error_message, '([^>>>]+)') do
-    part = part:gsub('^%s*(.-)%s*$', '%1') -- Trim whitespace
+  local first_part = error_message:match('^[^>>>]+')
+  local last_part = error_message:match('([^>>>]+)$')
 
-    -- Skip the line if it contains '~~~~~~'
-    if not part:find('~+') then
-      table.insert(parts, part)
-    end
-  end
-
-  if #parts < 2 then
-    return error_message -- Return the original message if it's not complex
+  if first_part and last_part then
+    return trim(first_part) .. ' >>>> ' .. trim(last_part)
   else
-    return parts[1] .. ' >>>> ' .. parts[#parts]
+    return error_message -- Return the original message if it consists of a single part
   end
 end
 
@@ -221,11 +215,7 @@ util.find_tsc_bin = function()
     util.log_error('[pnpm] - tsc not found')
   end
 
-  -- TODO: Detect Bun if there is bun.lock and Bun is installed and has tsc
-
-  -- TODO: Detect Deno if there is deno.lock and Deno is installed and has tsc
-
-  return nil
+    return nil
 end
 
 --- Clear quickfix if the test is successful after running
