@@ -53,4 +53,21 @@ describe('Typecheck.nvim - utils', function()
     local parsed_output = utils.parse_tsc_output(tsc_output, 'stdout')
     assert.are.same(expected_output, parsed_output)
   end)
+
+  it('should simplify multi-line error message', function()
+    local complex_error =
+      "error TS2554: Expected 1 arguments, but got 0. >>>> 34   const contract = await getActiveSmartContract(); >>>> ~~~~~~~~~~~~~~~~~~~~~~~~ >>>> ../utils-server/db-orm/src/index.ts:280:46 >>>> 280 export async function getActiveSmartContract(contractKey: string) { >>>> ~~~~~~~~~~~~~~~~~~~ >>>> An argument for 'contractKey' was not provided."
+
+    local simplified_tsc_error = utils.simplify_error_message(complex_error)
+    assert.are.same(
+      "error TS2554: Expected 1 arguments, but got 0. >>>> An argument for 'contractKey' was not provided.",
+      simplified_tsc_error
+    )
+  end)
+
+  it('should simplify single-line error message', function()
+    local complex_error = "error TS1005: ')' expected."
+    local simplified_tsc_error = utils.simplify_error_message(complex_error)
+    assert.are.same("error TS1005: ')' expected.", simplified_tsc_error)
+  end)
 end)

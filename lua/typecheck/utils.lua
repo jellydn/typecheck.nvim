@@ -55,12 +55,16 @@ util.parse_tsc_output = function(data, type)
   for line in data:gmatch('[^\r\n]+') do
     line = remove_ansi_codes(line)
     line = trim(line)
-    -- Match for single-line error (e.g., TS1005)
+    -- Match for single-line error (e.g., error TS2554: Expected 2 arguments, but got 3.)
     local file, lineno, colno, errorCode, errorMsg =
       line:match('^(.-)%((%d+),(%d+)%)%: error (TS%d+): (.+)')
 
-    -- Match for first line of multi-line error (e.g., TS2554)
     if not file then
+      -- Match for first line of multi-line error
+      -- [[
+      -- error TS2834: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'.
+      -- Consider adding an extension to the import path.
+      -- ]]
       file, lineno, colno, errorCode = line:match('^(.-)%:(%d+)%:(%d+)%s*%- error (TS%d+):')
       -- Get error message after error code
       errorMsg = line:match('error TS%d+: (.+)')
@@ -68,7 +72,6 @@ util.parse_tsc_output = function(data, type)
 
     if file then
       if currentError then
-        -- End of the previous error, start of a new one
         table.insert(errors, currentError)
       end
       -- Start of a new error
@@ -79,15 +82,13 @@ util.parse_tsc_output = function(data, type)
         text = errorCode and ('error ' .. errorCode .. ': ' .. (errorMsg or '')) or '',
       }
     elseif currentError then
-      -- Continuing a multi-line error message
       local separator = ' >>> '
-      currentError.text = currentError.text .. separator .. line
+      currentError.text = currentError.text .. separator .. trim(line)
     end
   end
 
   if currentError then
-    -- TODO: Simplify the error message for multi-line error
-    -- Add the last error
+    currentError.text = util.simplify_error_message(currentError.text)
     table.insert(errors, currentError)
   end
 
@@ -105,6 +106,28 @@ local function contain_string(str_list, keyword)
     end
   end
   return nil
+end
+
+--- Simplify error message
+--- Only keep the first and last line of the error message
+---@param error_message string
+---@return string
+util.simplify_error_message = function(error_message)
+  local parts = {}
+  for part in string.gmatch(error_message, '([^>>>]+)') do
+    part = part:gsub('^%s*(.-)%s*$', '%1') -- Trim whitespace
+
+    -- Skip the line if it contains '~~~~~~'
+    if not part:find('~+') then
+      table.insert(parts, part)
+    end
+  end
+
+  if #parts < 2 then
+    return error_message -- Return the original message if it's not complex
+  else
+    return parts[1] .. ' >>>> ' .. parts[#parts]
+  end
 end
 
 --- Find tsconfig.json nearest to current file
