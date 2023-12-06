@@ -36,3 +36,5 @@ docstrings
 sweepai
 pygithub
 sandboxed
+nodenext
+cclose

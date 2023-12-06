@@ -22,7 +22,6 @@ return {
   ft = { "javascript", "javascriptreact", "json", "jsonc", "typescript", "typescriptreact" },
   opts = {
     debug = true, -- Allow to write log to ~/.cache/nvim/typecheck.nvim.log
-    monorepo = false, -- Run tsc with --build flag for monorepo
   },
   keys = {
     {
