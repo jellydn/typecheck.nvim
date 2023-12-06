@@ -2,7 +2,7 @@ local log = require('typecheck.vlog')
 local typescript_errors = require('typecheck.known_errors')
 
 local util = {}
-
+local separator = ' >>>> '
 --- Log info
 ---@vararg any
 util.log_info = function(...)
@@ -55,7 +55,6 @@ util.parse_tsc_output = function(data, type)
   util.log_info('Parse tsc error message from ' .. type .. ':' .. data)
   local errors = {}
   local currentError = nil
-  local separator = ' >>>> '
 
   for line in data:gmatch('[^\r\n]+') do
     line = remove_ansi_codes(line)
@@ -79,18 +78,6 @@ util.parse_tsc_output = function(data, type)
       if currentError then
         table.insert(errors, currentError)
       end
-      util.log_info(
-        'Found error: '
-          .. file
-          .. ':'
-          .. lineno
-          .. ':'
-          .. colno
-          .. ' - '
-          .. errorCode
-          .. ' - '
-          .. errorMsg
-      )
 
       if typescript_errors.known_errors[errorCode] then
         util.log_info('Error is known, simply skip it')
@@ -153,7 +140,7 @@ util.simplify_error_message = function(error_message)
   if #parts < 2 then
     return error_message -- Return the original message if it's not complex
   else
-    return parts[1] .. ' >>>> ' .. parts[#parts]
+    return parts[1] .. separator .. parts[#parts]
   end
 end
 
@@ -255,6 +242,24 @@ util.find_tsc_bin = function()
   return nil
 end
 
+--- Show error list in quickfix window or trouble if available
+---@param mode 'open'|'close'
+local function toggle_error_list(mode)
+  if vim.fn.exists(':TroubleToggle') ~= 0 then
+    if mode == 'open' then
+      vim.cmd('Trouble quickfix')
+    else
+      vim.cmd('TroubleClose')
+    end
+  else
+    if mode == 'open' then
+      vim.cmd('copen')
+    else
+      vim.cmd('cclose')
+    end
+  end
+end
+
 --- Clear quickfix if the test is successful after running
 util.clear_quickfix = function()
   -- Only clear typecheck list in quickfix if there is no error
@@ -262,7 +267,7 @@ util.clear_quickfix = function()
     title = 'typecheck',
     items = {},
   })
-  vim.cmd('cclose')
+  toggle_error_list('close')
 end
 
 util.send_to_quickfix = function(items)
@@ -270,7 +275,7 @@ util.send_to_quickfix = function(items)
     title = 'typecheck',
     items = items,
   })
-  vim.cmd('copen')
+  toggle_error_list('open')
 end
 
 return util
