@@ -2,7 +2,7 @@ local log = require('typecheck.vlog')
 local typescript_errors = require('typecheck.known_errors')
 
 local util = {}
-
+local separator = ' >>>> '
 --- Log info
 ---@vararg any
 util.log_info = function(...)
@@ -52,7 +52,6 @@ util.parse_tsc_output = function(data, type)
   util.log_info('Parse tsc error message from ' .. type .. ':' .. data)
   local errors = {}
   local currentError = nil
-  local separator = ' >>>> '
 
   for line in data:gmatch('[^\r\n]+') do
     line = remove_ansi_codes(line)
@@ -76,18 +75,6 @@ util.parse_tsc_output = function(data, type)
       if currentError then
         table.insert(errors, currentError)
       end
-      util.log_info(
-        'Found error: '
-          .. file
-          .. ':'
-          .. lineno
-          .. ':'
-          .. colno
-          .. ' - '
-          .. errorCode
-          .. ' - '
-          .. errorMsg
-      )
 
       if typescript_errors.known_errors[errorCode] then
         util.log_info('Error is known, simply skip it')
@@ -150,7 +137,7 @@ util.simplify_error_message = function(error_message)
   if #parts < 2 then
     return error_message -- Return the original message if it's not complex
   else
-    return parts[1] .. ' >>>> ' .. parts[#parts]
+    return parts[1] .. separator .. parts[#parts]
   end
 end
 
