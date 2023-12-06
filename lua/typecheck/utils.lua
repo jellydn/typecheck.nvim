@@ -44,10 +44,13 @@ local function trim(s)
   return s:match('^%s*(.-)%s*$')
 end
 
---- Parse tsc output
----@param data string
----@param type string
----@return table
+--- Parses the output of the TypeScript compiler (tsc) to identify and report errors.
+--- This function analyzes both single-line and multi-line error messages.
+--- It also considers known errors, which are skipped according to a predefined list.
+--- Each error is simplified to its essence before being reported.
+---@param data string The raw output string from the TypeScript compiler.
+---@param type string The type of output, typically indicating the source of the message.
+---@return table An array of tables containing parsed errors, with each table detailing a specific error.
 util.parse_tsc_output = function(data, type)
   util.log_info('Parse tsc error message from ' .. type .. ':' .. data)
   local errors = {}
