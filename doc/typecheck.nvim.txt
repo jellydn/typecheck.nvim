@@ -58,7 +58,7 @@ are any errors or warnings.
 <https://gyazo.com/5009755ceb575afc78d7303983a2f7c0>
 
 
-INTEGRATION WITH TROUBLE.NVIM
++INTEGRATION WITH TROUBLE.NVIM
 
 <https://gyazo.com/fc367f6cc005dd53f696c299e383318a>
 
