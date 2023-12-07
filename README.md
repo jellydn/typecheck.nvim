@@ -10,7 +10,7 @@
 ## Features
 
 - Asynchronous type checking: Run TypeScript compiler (`tsc`) checks without blocking the Neovim UI.
-- Integration with quickfix window: View and navigate TypeScript errors and warnings directly within Neovim.
+- Integration with quickfix or [trouble.nvim](https://github.com/folke/trouble.nvim) window: View and navigate TypeScript errors and warnings directly within Neovim.
 
 ## Installation
 
@@ -38,6 +38,10 @@ return {
 Run `:Typecheck` to start type checking. The quickfix window will open if there are any errors or warnings.
 
 [![Demo](https://i.gyazo.com/5009755ceb575afc78d7303983a2f7c0.gif)](https://gyazo.com/5009755ceb575afc78d7303983a2f7c0)
+
+#### Integration with [trouble.nvim](https://github.com/folke/trouble.nvim)
+
+[![Show on Trouble](https://i.gyazo.com/fc367f6cc005dd53f696c299e383318a.gif)](https://gyazo.com/fc367f6cc005dd53f696c299e383318a)
 
 ## Roadmap
 
