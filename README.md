@@ -19,9 +19,11 @@ Include `typecheck.nvim` in your plugin manager's configuration. For example, us
 ```lua
 return {
   "jellydn/typecheck.nvim",
+  dependencies = { "folke/trouble.nvim", dependencies = { "nvim-tree/nvim-web-devicons" } },
   ft = { "javascript", "javascriptreact", "json", "jsonc", "typescript", "typescriptreact" },
   opts = {
-    debug = true, -- Allow to write log to ~/.cache/nvim/typecheck.nvim.log
+    debug = true,
+    mode = "trouble", -- "quickfix" | "trouble"
   },
   keys = {
     {
