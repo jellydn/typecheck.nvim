@@ -245,7 +245,7 @@ end
 --- Show error list in quickfix window or trouble if available
 ---@param mode 'open'|'close'
 local function toggle_error_list(mode)
-  if vim.fn.exists(':TroubleToggle') ~= 0 then
+  if _TYPECHECK_GLOBAL_CONFIG.mode == 'trouble' then
     if mode == 'open' then
       require('trouble').open('quickfix')
     else
