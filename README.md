@@ -2,7 +2,6 @@
 <p>
   A Neovim plugin for seamless TypeScript type checking.
 </p>
-
 [![IT Man - Revolutionize Your TypeScript with typecheck.nvim [Vietnamese]](https://i.ytimg.com/vi/XkH--D09ENY/hqdefault.jpg)](https://www.youtube.com/watch?v=XkH--D09ENY)
 
 ## Introduction
