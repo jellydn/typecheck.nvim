@@ -102,11 +102,11 @@ LICENSE                                               *typecheck.nvim-license*
 
 AUTHOR                                                 *typecheck.nvim-author*
 
-👤 **Huynh Duc Dung**
+👤 **Dung, Huynh Duc**
 
 - Website: https://productsway.com/
 - Twitter: @jellydn <https://twitter.com/jellydn>
-- Github: @jellydn <https://github.com/jellydn>
+- Github: @Dung, Huynh Duc <https://github.com/jellydn>
 
 
 SHOW YOUR SUPPORT                           *typecheck.nvim-show-your-support*
