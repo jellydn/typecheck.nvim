@@ -3,6 +3,8 @@
   A Neovim plugin for seamless TypeScript type checking.
 </p>
 
+[![IT Man - Revolutionize Your TypeScript with typecheck.nvim [Vietnamese]](https://i.ytimg.com/vi/XkH--D09ENY/hqdefault.jpg)](https://www.youtube.com/watch?v=XkH--D09ENY)
+
 ## Introduction
 
 `typecheck.nvim` is a Neovim plugin designed to enhance your TypeScript development workflow. It provides real-time type checking and integrates smoothly with Neovim's quickfix window, allowing you to easily navigate and fix type errors in your TypeScript projects.
