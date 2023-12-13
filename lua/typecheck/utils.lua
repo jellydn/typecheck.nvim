@@ -1,11 +1,11 @@
 local log = require('typecheck.vlog')
 local typescript_errors = require('typecheck.known_errors')
 
-local util = {}
-local separator = ' >>>> '
+local M = {}
+local separator = ' >>> '
 --- Log info
 ---@vararg any
-util.log_info = function(...)
+M.log_info = function(...)
   -- Only save log when debug is on
   if not _TYPECHECK_GLOBAL_CONFIG.debug then
     return
@@ -16,7 +16,7 @@ end
 
 --- Log error
 ---@vararg any
-util.log_error = function(...)
+M.log_error = function(...)
   -- Only save log when debug is on
   if not _TYPECHECK_GLOBAL_CONFIG.debug then
     return
@@ -29,7 +29,7 @@ end
 ---@param cmd string The command name
 ---@param func function The function to execute
 ---@param opt table The options
-util.create_cmd = function(cmd, func, opt)
+M.create_cmd = function(cmd, func, opt)
   opt = vim.tbl_extend('force', { desc = 'typecheck.nvim ' .. cmd }, opt or {})
   vim.api.nvim_create_user_command(cmd, func, opt)
 end
@@ -51,8 +51,8 @@ end
 ---@param data string The raw output string from the TypeScript compiler.
 ---@param type string The type of output, typically indicating the source of the message.
 ---@return table An array of tables containing parsed errors, with each table detailing a specific error.
-util.parse_tsc_output = function(data, type)
-  util.log_info('Parse tsc error message from ' .. type .. ':' .. data)
+M.parse_tsc_output = function(data, type)
+  M.log_info('Parse tsc error message from ' .. type .. ':' .. data)
   local errors = {}
   local currentError = nil
 
@@ -80,7 +80,7 @@ util.parse_tsc_output = function(data, type)
       end
 
       if typescript_errors.known_errors[errorCode] then
-        util.log_info('Error is known, simply skip it')
+        M.log_info('Error is known, simply skip it')
         table.insert(errors, {
           filename = file,
           lnum = tonumber(lineno),
@@ -98,12 +98,16 @@ util.parse_tsc_output = function(data, type)
       end
     -- Append additional error details if there's an ongoing error and configuration allows showing all errors
     elseif currentError and not _TYPECHECK_GLOBAL_CONFIG.only_show_first_error_message then
-      currentError.text = currentError.text .. separator .. trim(line)
+      M.log_info('Append additional error details: ' .. line)
+      -- Skip if line contains 'Found X errors' or ~~~
+      if not line:find('Found %d+ errors') and not line:find('~+') then
+        currentError.text = currentError.text .. separator .. trim(line)
+      end
     end
   end
 
   if currentError then
-    currentError.text = util.simplify_error_message(currentError.text)
+    currentError.text = M.simplify_error_message(currentError.text)
     table.insert(errors, currentError)
   end
 
@@ -127,27 +131,28 @@ end
 --- Only keep the first and last line of the error message
 ---@param error_message string
 ---@return string
-util.simplify_error_message = function(error_message)
-  local parts = {}
-  for part in string.gmatch(error_message, '([^>>>]+)') do
-    part = part:gsub('^%s*(.-)%s*$', '%1') -- Trim whitespace
+M.simplify_error_message = function(error_message)
+  local lines = {}
+  for line in string.gmatch(error_message, '([^>>>]+)') do
+    line = line:gsub('^%s*(.-)%s*$', '%1') -- Trim whitespace
 
     -- Skip the line if it contains '~~~~~~'
-    if not part:find('~+') then
-      table.insert(parts, part)
+    if not line:find('~+') then
+      table.insert(lines, line)
     end
   end
 
-  if #parts < 2 then
+  if #lines < 2 then
+    M.log_info('Error message is not complex, return original message')
     return error_message -- Return the original message if it's not complex
   else
-    return parts[1] .. separator .. parts[#parts]
+    return lines[1] .. separator .. lines[#lines]
   end
 end
 
 --- Find tsconfig.json nearest to current file
 ---@return string|nil
-util.find_tsconfig_nearest = function()
+M.find_tsconfig_nearest = function()
   local current_file = vim.fn.expand('%:p')
   local current_dir = vim.fn.fnamemodify(current_file, ':h')
   local root_dir = vim.fn.systemlist('git -C ' .. current_dir .. ' rev-parse --show-toplevel')[1]
@@ -162,7 +167,7 @@ util.find_tsconfig_nearest = function()
 
   while current_dir ~= root_dir do
     if vim.fn.filereadable(current_dir .. '/tsconfig.json') ~= 0 then
-      util.log_info('Found tsconfig.json at ' .. current_dir)
+      M.log_info('Found tsconfig.json at ' .. current_dir)
       return current_dir .. '/tsconfig.json'
     end
 
@@ -177,7 +182,7 @@ util.find_tsconfig_nearest = function()
 
   -- Check in the git root directory as well
   if vim.fn.filereadable(root_dir .. '/tsconfig.json') ~= 0 then
-    util.log_info('Found tsconfig.json at ' .. root_dir)
+    M.log_info('Found tsconfig.json at ' .. root_dir)
     return root_dir .. '/tsconfig.json'
   end
 
@@ -186,19 +191,19 @@ end
 
 --- Find tsc binary
 ---@return string|nil
-util.find_tsc_bin = function()
+M.find_tsc_bin = function()
   local current_dir = vim.fn.expand('%:p:h')
   local root_dir = vim.fn.systemlist('git -C ' .. current_dir .. ' rev-parse --show-toplevel')[1]
   -- Check for tsc from current directory up to git root
   --
-  util.log_info('Check for tsc from current directory up to git root')
-  util.log_info('Current directory: ' .. current_dir)
-  util.log_info('Git root: ' .. root_dir)
+  M.log_info('Check for tsc from current directory up to git root')
+  M.log_info('Current directory: ' .. current_dir)
+  M.log_info('Git root: ' .. root_dir)
   local results = vim.fs.find({
     '/node_modules/.bin/tsc',
   }, { upward = true, path = current_dir, limit = math.huge })
   for _, path in ipairs(results) do
-    util.log_info('Found tsc at ' .. path)
+    M.log_info('Found tsc at ' .. path)
     if vim.fn.executable(path) == 1 then
       return path
     end
@@ -206,34 +211,34 @@ util.find_tsc_bin = function()
 
   -- Check if yarn v1 is installed and has tsc
   local yarn_v1_tsc = vim.fn.systemlist('yarn bin tsc')
-  util.log_info('Check for tsc with yarn v1: ' .. vim.inspect(yarn_v1_tsc))
+  M.log_info('Check for tsc with yarn v1: ' .. vim.inspect(yarn_v1_tsc))
   local tsc = vim.v.shell_error == 0 and yarn_v1_tsc ~= nil and contain_string(yarn_v1_tsc, 'tsc')
   -- Check tsc is executable
   if tsc and vim.fn.executable(tsc) == 1 then
-    util.log_info('[yarn] - Found tsc at ' .. tsc)
+    M.log_info('[yarn] - Found tsc at ' .. tsc)
     return tsc
   else
-    util.log_error('[yarn] - tsc not found')
+    M.log_error('[yarn] - tsc not found')
   end
 
   -- check if pnpm is installed and has tsc
   local pnpm_tsc = vim.fn.systemlist('pnpm bin')
-  util.log_info('Check for tsc with pnpm: ' .. vim.inspect(pnpm_tsc))
+  M.log_info('Check for tsc with pnpm: ' .. vim.inspect(pnpm_tsc))
   if
     vim.v.shell_error == 0
     and pnpm_tsc ~= nil
     and vim.fn.filereadable(pnpm_tsc[1] .. '/tsc') ~= 0
   then
-    util.log_info('[pnpm] - Found tsc at ' .. pnpm_tsc[1] .. '/tsc')
+    M.log_info('[pnpm] - Found tsc at ' .. pnpm_tsc[1] .. '/tsc')
     local tsc_bin = pnpm_tsc[1] .. '/tsc'
     if tsc_bin and vim.fn.executable(tsc_bin) == 1 then
-      util.log_info('[pnpm] - Found tsc at ' .. tsc_bin)
+      M.log_info('[pnpm] - Found tsc at ' .. tsc_bin)
       return tsc_bin
     else
-      util.log_error('[pnpm] - tsc not found')
+      M.log_error('[pnpm] - tsc not found')
     end
   else
-    util.log_error('[pnpm] - tsc not found')
+    M.log_error('[pnpm] - tsc not found')
   end
 
   -- TODO: Detect Bun if there is bun.lock and Bun is installed and has tsc
@@ -262,7 +267,7 @@ local function toggle_error_list(mode)
 end
 
 --- Clear quickfix if the test is successful after running
-util.clear_quickfix = function()
+M.clear_quickfix = function()
   -- Only clear typecheck list in quickfix if there is no error
   vim.fn.setqflist({}, ' ', {
     title = 'typecheck',
@@ -271,7 +276,7 @@ util.clear_quickfix = function()
   toggle_error_list('close')
 end
 
-util.send_to_quickfix = function(items)
+M.send_to_quickfix = function(items)
   vim.fn.setqflist({}, ' ', {
     title = 'typecheck',
     items = items,
@@ -279,4 +284,4 @@ util.send_to_quickfix = function(items)
   toggle_error_list('open')
 end
 
-return util
+return M

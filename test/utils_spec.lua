@@ -39,14 +39,14 @@ describe('Typecheck.nvim - utils', function()
 
   it('should correctly parse complex tsc error output', function()
     local tsc_output =
-      [[server.mts:34:26 - error TS2554: Expected 1 arguments, but got 0. >>>> 34   const contract = await getActiveSmartContract();]]
+      [[server.mts:34:26 - error TS2554: Expected 1 arguments, but got 0. >>> 34   const contract = await getActiveSmartContract();]]
 
     local expected_output = {
       {
         filename = 'server.mts',
         lnum = 34,
         col = 26,
-        text = 'error TS2554: Expected 1 arguments, but got 0. >>>> 34   const contract = await getActiveSmartContract();',
+        text = 'error TS2554: Expected 1 arguments, but got 0. >>> 34   const contract = await getActiveSmartContract();',
       },
     }
 
@@ -56,11 +56,11 @@ describe('Typecheck.nvim - utils', function()
 
   it('should simplify multi-line error message', function()
     local complex_error =
-      "error TS2554: Expected 1 arguments, but got 0. >>>> 34   const contract = await getActiveSmartContract(); >>>> ~~~~~~~~~~~~~~~~~~~~~~~~ >>>> ../utils-server/db-orm/src/index.ts:280:46 >>>> 280 export async function getActiveSmartContract(contractKey: string) { >>>> ~~~~~~~~~~~~~~~~~~~ >>>> An argument for 'contractKey' was not provided."
+      "error TS2554: Expected 1 arguments, but got 0. >>> 34   const contract = await getActiveSmartContract(); >>> ~~~~~~~~~~~~~~~~~~~~~~~~ >>> ../utils-server/db-orm/src/index.ts:280:46 >>> 280 export async function getActiveSmartContract(contractKey: string) { >>> ~~~~~~~~~~~~~~~~~~~ >>> An argument for 'contractKey' was not provided."
 
     local simplified_tsc_error = utils.simplify_error_message(complex_error)
     assert.are.same(
-      "error TS2554: Expected 1 arguments, but got 0. >>>> An argument for 'contractKey' was not provided.",
+      "error TS2554: Expected 1 arguments, but got 0. >>> An argument for 'contractKey' was not provided.",
       simplified_tsc_error
     )
   end)
