@@ -152,7 +152,7 @@ util.find_tsconfig_nearest = function()
   local current_dir = vim.fn.fnamemodify(current_file, ':h')
   local root_dir = vim.fn.systemlist('git -C ' .. current_dir .. ' rev-parse --show-toplevel')[1]
 
-if vim.v.shell_error ~= 0 then
+  if vim.v.shell_error ~= 0 then
     -- Git root not found, check if there is tsconfig.json in current directory
     local tsconfig = vim.fn.findfile('tsconfig.json', '.;')
     if tsconfig ~= '' then
