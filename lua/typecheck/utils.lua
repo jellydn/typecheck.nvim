@@ -96,6 +96,7 @@ util.parse_tsc_output = function(data, type)
           text = errorCode and ('error ' .. errorCode .. ': ' .. (errorMsg or '')) or '',
         }
       end
+    -- Append additional error details if there's an ongoing error and configuration allows showing all errors
     elseif currentError and not _TYPECHECK_GLOBAL_CONFIG.only_show_first_error_message then
       currentError.text = currentError.text .. separator .. trim(line)
     end
