@@ -35,6 +35,8 @@ M.create_cmd = function(cmd, func, opt)
 end
 
 -- Function to remove ANSI color codes
+---@param str string
+---@return string
 local function remove_ansi_codes(str)
   return str:gsub('\027%[[0-9;]*m', '')
 end
@@ -55,9 +57,10 @@ M.parse_tsc_output = function(data, type)
   M.log_info('Parse tsc error message from ' .. type .. ':' .. data)
   local errors = {}
   local currentError = nil
+  data = remove_ansi_codes(data)
 
+  local last_line = nil
   for line in data:gmatch('[^\r\n]+') do
-    line = remove_ansi_codes(line)
     line = trim(line)
     -- Match for single-line error (e.g., error TS2554: Expected 2 arguments, but got 3.)
     local file, lineno, colno, errorCode, errorMsg =
@@ -65,6 +68,7 @@ M.parse_tsc_output = function(data, type)
 
     if not file then
       -- Match for first line of multi-line error
+      -- E.g: Below is multi-line error
       -- [[
       -- error TS2834: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'.
       -- Consider adding an extension to the import path.
@@ -96,18 +100,28 @@ M.parse_tsc_output = function(data, type)
           text = errorCode and ('error ' .. errorCode .. ': ' .. (errorMsg or '')) or '',
         }
       end
-    -- Append additional error details if there's an ongoing error and configuration allows showing all errors
-    elseif currentError and not _TYPECHECK_GLOBAL_CONFIG.only_show_first_error_message then
-      M.log_info('Append additional error details: ' .. line)
-      -- Skip if line contains 'Found X errors' or ~~~
-      if not line:find('Found %d+ errors') and not line:find('~+') then
-        currentError.text = currentError.text .. separator .. trim(line)
-      end
+    end
+
+    -- Detect the last error line which is often the root cause of the error
+    if
+      currentError
+      and currentError.text -- Only add the last line if that is multi lines error
+      and line ~= nil
+      and not line:find('~+') -- Ignore lines with ~~~~
+      and not line:find('.ts') -- Ignore lines with filename *.ts
+      and not line:find('Found %d+ errors?') -- Ignore "Found x errors"
+    then
+      last_line = line
     end
   end
 
   if currentError then
-    currentError.text = M.simplify_error_message(currentError.text)
+    if _TYPECHECK_GLOBAL_CONFIG.only_show_first_error_message then
+      currentError.text = M.simplify_error_message(currentError.text)
+    elseif last_line then
+      currentError.text = currentError.text .. separator .. last_line
+    end
+
     table.insert(errors, currentError)
   end
 
