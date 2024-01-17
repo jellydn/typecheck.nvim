@@ -1,4 +1,5 @@
 local utils = require('typecheck.utils')
+local spinner = require('typecheck.spinner')
 
 local M = {}
 
@@ -29,6 +30,7 @@ local function run_typecheck(cmd)
     end
 
     is_running = false
+    spinner.hide_spinner()
 
     if handle then
       handle:close()
@@ -80,6 +82,7 @@ local function run_typecheck(cmd)
   if not handle then
     vim.notify('Failed to start typecheck', vim.log.levels.ERROR)
     is_running = false
+    spinner.hide_spinner()
   end
 end
 function M.setup()
@@ -90,6 +93,7 @@ function M.setup()
       return
     end
 
+    spinner.show_spinner()
     vim.notify('Typechecking', vim.log.levels.INFO)
 
     local tsc_path = utils.find_tsc_bin()
