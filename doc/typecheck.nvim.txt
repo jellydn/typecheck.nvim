@@ -1,4 +1,4 @@
-*typecheck.nvim.txt*        For NVIM v0.8.0       Last change: 2024 January 17
+*typecheck.nvim.txt*         For NVIM v0.8.0        Last change: 2024 April 02
 
 ==============================================================================
 Table of Contents                           *typecheck.nvim-table-of-contents*
@@ -12,6 +12,7 @@ Table of Contents                           *typecheck.nvim-table-of-contents*
   - License                                           |typecheck.nvim-license|
   - Author                                             |typecheck.nvim-author|
   - Show your support                       |typecheck.nvim-show-your-support|
+1. Links                                                |typecheck.nvim-links|
 Welcome to typecheck.nvim 👋A Neovim plugin for seamless TypeScript type checking.<https://www.youtube.com/watch?v=XkH--D09ENY>
 
 
