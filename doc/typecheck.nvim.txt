@@ -1,4 +1,4 @@
-*typecheck.nvim.txt*         For NVIM v0.8.0        Last change: 2024 April 02
+*typecheck.nvim.txt*       For NVIM v0.8.0       Last change: 2025 February 05
 
 ==============================================================================
 Table of Contents                           *typecheck.nvim-table-of-contents*
