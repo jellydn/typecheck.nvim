@@ -56,7 +56,7 @@ jobs:
           luaVersion: "luajit-2.1.0-beta3"
 
       - name: luarocks
-        uses: leafo/gh-actions-luarocks@v4
+        uses: leafo/gh-actions-luarocks@v5
 
       - name: run test
         shell: bash
